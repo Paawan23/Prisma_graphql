@@ -8,7 +8,7 @@ const {
   getAllPosts,
   getPostsByPostId,
   getPostsByUser,
-} = require("../controllers/post/posts");
+} = require("../controllers/post/post");
 const {
   createProduct,
   updateProduct,
@@ -16,7 +16,8 @@ const {
   getAllProduct,
   getProductsByProductId,
   getProductsByUser,
-} = require("../controllers/product/products");
+  getProductExcelFile,
+} = require("../controllers/product/product");
 const {
   createUser,
   loginUser,
@@ -62,6 +63,11 @@ router.get(
   `/product/getProductsByUser/:userId`,
   verifyToken,
   getProductsByUser
+);
+router.get(
+  `/product/getProductExcelFile/:productId`,
+  verifyToken,
+  getProductExcelFile
 );
 
 module.exports = router;

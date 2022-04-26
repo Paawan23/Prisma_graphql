@@ -4,6 +4,116 @@ let validator = require("validator");
 const formidable = require("formidable");
 const fs = require("fs");
 const path = require("path");
+const { createExcel, assetsFolder } = require("../../common/commonFunctions");
+
+const headingColumnNames = [
+  "Product Name",
+  "Product Price",
+  "Weight",
+  "Manufactured By",
+  "Status",
+  "Created By",
+  "Created At",
+  "Updated By",
+  "Updated At",
+  "Deleted By",
+  "Deleted At",
+];
+
+const getProductExcelAndPDFFileList = async (getType, condition) => {
+  try {
+    let selectQuery = await prisma.tbl_product.findMany({
+      where: {
+        status: 1,
+      },
+      select: {
+        name: true,
+        price: true,
+        weight: true,
+        manufactured_by: true,
+        status: true,
+        created_at: true,
+        created_by: true,
+        updated_at: true,
+        updated_by: true,
+        deleted_at: true,
+        deleted_by: true,
+      },
+    });
+
+    let selectQueryById = await prisma.tbl_product.findMany({
+      where: {
+        status: 1,
+        product_id: condition.productIds,
+      },
+      select: {
+        name: true,
+        price: true,
+        weight: true,
+        manufactured_by: true,
+        status: true,
+        created_at: true,
+        created_by: true,
+        updated_at: true,
+        updated_by: true,
+        deleted_at: true,
+        deleted_by: true,
+      },
+    });
+    console.log("selectQuery :>> ", selectQuery);
+    console.log("selectQueryById :>> ", selectQueryById);
+
+    let responseMessage = {};
+    switch (getType) {
+      case "all":
+        responseMessage = { status: true, data: selectQuery };
+        break;
+      case "productIds":
+        responseMessage = { status: true, data: selectQueryById };
+        break;
+    }
+
+    return responseMessage;
+  } catch (error) {
+    return { status: false, message: error.message };
+  }
+};
+
+const getProductExcelFile = async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId);
+
+    let response;
+    if (productId) {
+      response = await getProductExcelAndPDFFileList("productIds", {
+        productIds: productId,
+      });
+    } else {
+      response = await getProductExcelAndPDFFileList("all", {});
+    }
+
+    if (response.status) {
+      const fileName = `${req.userInformation.userId}_product.xlsx`;
+      const createFile = await createExcel(
+        "Product",
+        headingColumnNames,
+        response,
+        fileName
+      );
+      if (createFile.status) {
+        return res.json({
+          data: assetsFolder.downloadFileUrl + createFile.fileName,
+        });
+      } else {
+        return res.json({ status: false, message: `File not created` });
+      }
+    } else {
+      return response;
+    }
+  } catch (error) {
+    return res.json({ status: false, message: error.message });
+  }
+};
 
 const createProduct = async (req, res) => {
   try {
@@ -390,4 +500,5 @@ module.exports = {
   getAllProduct,
   getProductsByProductId,
   getProductsByUser,
+  getProductExcelFile,
 };
