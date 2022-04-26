@@ -415,18 +415,12 @@ const changeEmail = async (req, res) => {
 };
 const changePassword = async (req, res) => {
   try {
-    const { userId, emailId, oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
     const updatedBy = req.userInformation.userId;
-    if (userId <= 0) {
-      return res.status(202).json({
-        status: false,
-        code: 202,
-        message: `Please provide valid user id!`,
-      });
-    }
+
     const userCheck = await prisma.tbl_user.findMany({
       where: {
-        user_id: userId,
+        user_id: req.userInformation.userId,
         status: 1,
       },
     });
@@ -435,20 +429,6 @@ const changePassword = async (req, res) => {
         status: false,
         code: 202,
         message: `User doesn't exists!`,
-      });
-    }
-    if (userCheck[0].email_id !== emailId) {
-      return res.status(202).json({
-        status: false,
-        code: 202,
-        message: `Email Id doesn't exist!`,
-      });
-    }
-    if (userId !== req.userInformation.userId) {
-      return res.status(202).json({
-        status: false,
-        code: 202,
-        message: `Please provide valid userId & email!`,
       });
     }
     const passwordMatch = await bcrypt.compare(
@@ -472,7 +452,7 @@ const changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await prisma.tbl_user.update({
       where: {
-        user_id: userId,
+        user_id: req.userInformation.userId,
       },
       data: {
         password: hashedPassword,
