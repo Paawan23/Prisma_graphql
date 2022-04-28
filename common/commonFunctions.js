@@ -1,11 +1,17 @@
 const fs = require("fs");
 const path = require("path");
 const xl = require("excel4node");
-// const ejs = require("ejs");
+const ejs = require("ejs");
 
 const assetsFolder = {
   reportFile: "report",
   downloadFileUrl: "/download/files/",
+};
+
+const fileNameInitial = async (fileName) => {
+  const getTime = new Date();
+  const fileTime = `${getTime.getMonth()}${getTime.getDate()}${getTime.getHours()}${getTime.getMinutes()}${getTime.getSeconds()}`;
+  return fileTime + "_" + fileName;
 };
 
 const createExcel = async (wsName, headingColumnNames, data, fileName) => {
@@ -61,4 +67,5 @@ module.exports = {
   assetsFolder,
   createExcel,
   ejsData,
+  fileNameInitial,
 };

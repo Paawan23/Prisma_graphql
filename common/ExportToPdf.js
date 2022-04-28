@@ -1,7 +1,7 @@
 const path = require("path");
 
 const pdf = require("html-pdf");
-const { assetsFolder } = require("./commonFunction");
+const { assetsFolder } = require("../common/commonFunctions");
 
 const optionNormal = {
   // height: '11.25in',

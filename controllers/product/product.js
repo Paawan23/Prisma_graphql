@@ -4,7 +4,13 @@ let validator = require("validator");
 const formidable = require("formidable");
 const fs = require("fs");
 const path = require("path");
-const { createExcel, assetsFolder } = require("../../common/commonFunctions");
+const {
+  createExcel,
+  assetsFolder,
+  fileNameInitial,
+  ejsData,
+} = require("../../common/commonFunctions");
+const { createPDF } = require("../../common/ExportToPdf");
 
 const headingColumnNames = [
   "Product Name",
@@ -12,12 +18,12 @@ const headingColumnNames = [
   "Weight",
   "Manufactured By",
   "Status",
-  "Created By",
   "Created At",
-  "Updated By",
+  "Created By",
   "Updated At",
-  "Deleted By",
+  "Updated By",
   "Deleted At",
+  "Deleted By",
 ];
 
 const getProductExcelAndPDFFileList = async (getType, condition) => {
@@ -60,8 +66,6 @@ const getProductExcelAndPDFFileList = async (getType, condition) => {
         deleted_by: true,
       },
     });
-    console.log("selectQuery :>> ", selectQuery);
-    console.log("selectQueryById :>> ", selectQueryById);
 
     let responseMessage = {};
     switch (getType) {
@@ -78,28 +82,63 @@ const getProductExcelAndPDFFileList = async (getType, condition) => {
     return { status: false, message: error.message };
   }
 };
-
-const getProductExcelFile = async (req, res) => {
+const getProductPDFFile = async (req, res) => {
   try {
-    const productId = parseInt(req.params.productId);
-
     let response;
-    if (productId) {
+    if (req.query["productId"]) {
       response = await getProductExcelAndPDFFileList("productIds", {
-        productIds: productId,
+        productIds: parseInt(req.query["productId"]),
       });
     } else {
       response = await getProductExcelAndPDFFileList("all", {});
     }
 
     if (response.status) {
+      const fileName = await fileNameInitial(
+        `${req.userInformation.userId}_product.pdf`
+      );
+
+      const createEjs = await ejsData(
+        "product.ejs",
+        response.data,
+        "Product",
+        headingColumnNames
+      );
+      const createFile = await createPDF(fileName, createEjs);
+
+      if (createFile.status) {
+        return res.json({
+          data: assetsFolder.downloadFileUrl + createFile.filePath,
+        });
+      } else {
+        return res.json({ status: false, message: `PDF not created` });
+      }
+    } else {
+      return response;
+    }
+  } catch (error) {
+    return res.json({ status: false, message: error.message });
+  }
+};
+const getProductExcelFile = async (req, res) => {
+  try {
+    let response;
+    if (req.query["productId"]) {
+      response = await getProductExcelAndPDFFileList("productIds", {
+        productIds: parseInt(req.query["productId"]),
+      });
+    } else {
+      response = await getProductExcelAndPDFFileList("all", {});
+    }
+    if (response.status) {
       const fileName = `${req.userInformation.userId}_product.xlsx`;
       const createFile = await createExcel(
         "Product",
         headingColumnNames,
-        response,
+        response.data,
         fileName
       );
+
       if (createFile.status) {
         return res.json({
           data: assetsFolder.downloadFileUrl + createFile.fileName,
@@ -114,7 +153,6 @@ const getProductExcelFile = async (req, res) => {
     return res.json({ status: false, message: error.message });
   }
 };
-
 const createProduct = async (req, res) => {
   try {
     let form = new formidable.IncomingForm();
@@ -501,4 +539,5 @@ module.exports = {
   getProductsByProductId,
   getProductsByUser,
   getProductExcelFile,
+  getProductPDFFile,
 };

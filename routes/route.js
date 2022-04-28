@@ -8,6 +8,7 @@ const {
   getAllPosts,
   getPostsByPostId,
   getPostsByUser,
+  getPostExcelFile,
 } = require("../controllers/post/post");
 const {
   createProduct,
@@ -17,6 +18,7 @@ const {
   getProductsByProductId,
   getProductsByUser,
   getProductExcelFile,
+  getProductPDFFile,
 } = require("../controllers/product/product");
 const {
   createUser,
@@ -48,6 +50,7 @@ router.post(`/posts/deletePost/:postId`, verifyToken, deletePost);
 router.get(`/posts/getAllPosts`, verifyToken, getAllPosts);
 router.get(`/posts/getPostsByPostId/:postId`, verifyToken, getPostsByPostId);
 router.get(`/posts/getPostsByUser/:useId`, verifyToken, getPostsByUser);
+router.get(`/posts/getPostExcelFile`, verifyToken, getPostExcelFile);
 
 router.post(`/product/createProduct`, verifyToken, createProduct);
 router.post(`/product/updateProduct`, verifyToken, updateProduct);
@@ -64,10 +67,7 @@ router.get(
   verifyToken,
   getProductsByUser
 );
-router.get(
-  `/product/getProductExcelFile/:productId`,
-  verifyToken,
-  getProductExcelFile
-);
+router.get(`/product/getProductExcelFile`, verifyToken, getProductExcelFile);
+router.get(`/product/getProductPDFFile`, verifyToken, getProductPDFFile);
 
 module.exports = router;

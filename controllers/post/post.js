@@ -1,5 +1,105 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { createExcel, assetsFolder } = require("../../common/commonFunctions");
+
+const headingColumnNames = [
+  "Post Title",
+  "Description",
+  "Status",
+  "Created At",
+  "Created By",
+  "Updated At",
+  "Updated By",
+  "Deleted At",
+  "Deleted By",
+];
+
+const getPostExcelAndPDFFileList = async (getType, condition) => {
+  try {
+    let selectQuery = await prisma.tbl_post.findMany({
+      where: {
+        status: 1,
+      },
+      select: {
+        title: true,
+        description: true,
+        status: true,
+        created_at: true,
+        created_by: true,
+        updated_at: true,
+        updated_by: true,
+        deleted_at: true,
+        deleted_by: true,
+      },
+    });
+
+    let selectQueryById = await prisma.tbl_post.findMany({
+      where: {
+        status: 1,
+        post_id: condition.postIds,
+      },
+      select: {
+        title: true,
+        description: true,
+        status: true,
+        created_at: true,
+        created_by: true,
+        updated_at: true,
+        updated_by: true,
+        deleted_at: true,
+        deleted_by: true,
+      },
+    });
+
+    let responseMessage = {};
+    switch (getType) {
+      case "all":
+        responseMessage = { status: true, data: selectQuery };
+        break;
+      case "postIds":
+        responseMessage = { status: true, data: selectQueryById };
+        break;
+    }
+
+    return responseMessage;
+  } catch (error) {
+    return { status: false, message: error.message };
+  }
+};
+
+const getPostExcelFile = async (req, res) => {
+  try {
+    let response;
+    if (req.query) {
+      response = await getPostExcelAndPDFFileList("postIds", {
+        postIds: parseInt(req.query["postId"]),
+      });
+    }
+    if (req.query.length === undefined) {
+      response = await getPostExcelAndPDFFileList("all", {});
+    }
+    if (response.status) {
+      const fileName = `${req.userInformation.userId}_post.xlsx`;
+      const createFile = await createExcel(
+        "Post",
+        headingColumnNames,
+        response.data,
+        fileName
+      );
+      if (createFile.status) {
+        return res.json({
+          data: assetsFolder.downloadFileUrl + createFile.fileName,
+        });
+      } else {
+        return res.json({ status: false, message: `File not created` });
+      }
+    } else {
+      return response;
+    }
+  } catch (error) {
+    return res.json({ status: false, message: error.message });
+  }
+};
 
 const createPost = async (req, res) => {
   try {
@@ -263,4 +363,5 @@ module.exports = {
   getAllPosts,
   getPostsByPostId,
   getPostsByUser,
+  getPostExcelFile,
 };
