@@ -63,7 +63,7 @@ const createUser = async (req, res) => {
   try {
     const { firstName, lastName, emailId, password } = req.body;
     const createdBy = req.userInformation.userId;
-    // if user  is not admin then the user is not authorized to perform the operation
+    // if user is not a admin then the user is not authorized to perform the operation
     const IsAdmin = await prisma.tbl_user.count({
       where: {
         user_id: createdBy,
