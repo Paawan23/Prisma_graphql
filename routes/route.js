@@ -39,7 +39,7 @@ router.get(`/userAuth/logout`, logout);
 router.post(`/userAuth/addUser`, verifyToken, createUser);
 router.post(`/userAuth/updateUser`, verifyToken, updateUser);
 router.post(`/userAuth/deleteUser/:userId`, verifyToken, deleteUser);
-router.post(`/userAuth/createAdmin`, verifyToken, createAdmin);
+router.post(`/userAuth/createAdmin`, createAdmin);
 router.post(`/userAuth/changeEmail`, verifyToken, changeEmail);
 router.post(`/userAuth/changePassword`, verifyToken, changePassword);
 router.post(`/userAuth/enableDisableUser`, verifyToken, enableDisableUser);
