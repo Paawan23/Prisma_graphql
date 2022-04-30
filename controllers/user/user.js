@@ -29,12 +29,15 @@ const loginUser = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user[0].password);
       const accessToken = jwt.sign(
         JSON.stringify({ userId: user[0].user_id, emailId: user[0].email_id }),
-        "secret"
+        "secret",
+        {
+          expiresIn: "24h",
+        }
       );
       if (passwordMatch) {
         return res
           .cookie("access_token", accessToken, {
-            httpOnly: true,
+            httpOnly: false,
             sameSite: "lax",
             secure: false,
             maxAge: 360000,

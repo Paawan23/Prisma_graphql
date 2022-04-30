@@ -13,7 +13,7 @@ const {
 } = require("../controllers/user/user");
 const router = express.Router();
 
-router.get(`/userAuth/login`, loginUser);
+router.post(`/userAuth/login`, loginUser);
 router.get(`/userAuth/logout`, logout);
 
 router.post(`/userAuth/addUser`, verifyToken, createUser);
