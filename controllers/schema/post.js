@@ -1,6 +1,7 @@
 const { gql } = require("apollo-server");
 const typeDefs = gql`
   scalar Upload
+  scalar DATETIME
 
   type File {
     filename: String!
@@ -12,6 +13,7 @@ const typeDefs = gql`
     userId: Int
     title: String
     description: String
+    image: String
   }
 
   input InputUpdatePost {
@@ -23,18 +25,18 @@ const typeDefs = gql`
   }
 
   type Post {
-    postId: Int
-    userId: Int
+    post_id: Int
+    user_id: Int
     title: String
     description: String
     image: String
     status: Int
-    createdAt: String
-    createdBy: Int
-    updatedAt: String
-    updatedBy: Int
-    deletedAt: String
-    deletedBy: Int
+    created_at: DATETIME
+    created_by: Int
+    updated_at: DATETIME
+    updated_by: Int
+    deleted_at: DATETIME
+    deleted_by: Int
   }
 
   type ResponseMutation {
@@ -64,7 +66,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createPost(image: Upload, data: InputCreatePost): ResponseMutation!
+    createPost(data: InputCreatePost): ResponseMutation!
     updatePost(data: InputUpdatePost): ResponseMutation!
     deletePost(postId: Int): ResponseMutation!
   }

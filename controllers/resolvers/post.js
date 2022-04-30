@@ -22,11 +22,11 @@ const fs = require("fs");
 const resolvers = {
   Mutation: {
     createPost: async (_, args, req) => {
-      console.log("args :>> ", args);
       try {
-        const { userId, title, description } = args;
+        const { title, description, image } = args.data;
         // const { filename, mimetype, createReadStream } = await args.file;
         const createdBy = req.userInformation.userId;
+        const userId = req.userInformation.userId;
         // const stream = createReadStream();
         // const pathObj = await storeFS({ stream, filename });
         // const fileLocation = pathObj.path;
@@ -37,11 +37,27 @@ const resolvers = {
             user_id: userId,
           },
         });
+
         if (userCheck === 0) {
           return {
             status: false,
             code: 202,
             message: `UserId not found!`,
+          };
+        }
+        const postCheck = await prisma.tbl_post.count({
+          where: {
+            user_id: userId,
+            title: title,
+            status: 1,
+          },
+        });
+
+        if (postCheck === 1) {
+          return {
+            status: false,
+            code: 202,
+            message: `post already exists!`,
           };
         }
         await prisma.tbl_post.create({
@@ -68,20 +84,25 @@ const resolvers = {
     },
     updatePost: async (_, args, req) => {
       try {
-        const { postId, title, description, image } = args;
+        const { postId, title, description, image } = args.data;
         const updatedBy = req.userInformation.userId;
         const postCheck = await prisma.tbl_post.count({
           where: {
             post_id: postId,
           },
         });
-
+        if (postCheck === 0) {
+          return {
+            status: false,
+            code: 202,
+            message: `Post not found!`,
+          };
+        }
         const postData = await prisma.tbl_post.findMany({
           where: {
             post_id: postId,
           },
         });
-
         if (postData[0].status !== 1) {
           return {
             status: false,
@@ -89,12 +110,20 @@ const resolvers = {
             message: `Post is deleted!`,
           };
         }
+        const titleCheck = await prisma.tbl_post.findFirst({
+          where: {
+            title: title,
+          },
+        });
+        console.log("titleCheck :>> ", titleCheck);
 
-        if (postCheck === 0) {
+        // if title alredy exists and post id doesn't match with title in the database then it can't be updated
+        //same title can be updated on it's own post id
+        if (titleCheck && titleCheck.post_id !== postId) {
           return {
-            status: false,
-            code: 202,
-            message: `Post not found!`,
+            status: true,
+            code: 201,
+            message: `Post already exists on different postId! Please provide correct postId`,
           };
         }
         await prisma.tbl_post.update({
@@ -173,7 +202,6 @@ const resolvers = {
 
   Query: {
     getAllPosts: async () => {
-      console.log(1);
       try {
         const data = await prisma.tbl_post.findMany({
           where: {
@@ -189,7 +217,7 @@ const resolvers = {
         return { status: false, code: 401, message: error.message };
       }
     },
-    getPostsByPostId: async (_, args, req) => {
+    getPostsByPostId: async (_, args) => {
       try {
         const { postId } = args;
         const postCheck = await prisma.tbl_post.count({
@@ -231,7 +259,7 @@ const resolvers = {
         return { status: false, code: 401, message: error.message };
       }
     },
-    getPostsByUser: async (_, args, req) => {
+    getPostsByUser: async (_, args) => {
       try {
         const { userId } = args;
         const userCheck = await prisma.tbl_user.count({
