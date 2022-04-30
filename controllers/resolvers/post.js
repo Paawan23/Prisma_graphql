@@ -18,19 +18,19 @@ const fs = require("fs");
 //       .on("finish", () => resolve({ path }))
 //   );
 // };
+// const { filename, mimetype, createReadStream } = await args.file;
+// const stream = createReadStream();
+// const pathObj = await storeFS({ stream, filename });
+// const fileLocation = pathObj.path;
+// console.log("fileLocation :>> ", fileLocation);
 
 const resolvers = {
   Mutation: {
     createPost: async (_, args, req) => {
       try {
         const { title, description, image } = args.data;
-        // const { filename, mimetype, createReadStream } = await args.file;
         const createdBy = req.userInformation.userId;
         const userId = req.userInformation.userId;
-        // const stream = createReadStream();
-        // const pathObj = await storeFS({ stream, filename });
-        // const fileLocation = pathObj.path;
-        // console.log("fileLocation :>> ", fileLocation);
 
         const userCheck = await prisma.tbl_user.count({
           where: {

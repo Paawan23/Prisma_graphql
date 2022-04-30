@@ -35,6 +35,9 @@ const loginUser = async (req, res) => {
         return res
           .cookie("access_token", accessToken, {
             httpOnly: true,
+            sameSite: "lax",
+            secure: false,
+            maxAge: 360000,
           })
           .json({
             status: true,
