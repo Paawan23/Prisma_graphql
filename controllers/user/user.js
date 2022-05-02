@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
     if (user.length > 0) {
       const passwordMatch = await bcrypt.compare(password, user[0].password);
       const accessToken = jwt.sign(
-        JSON.stringify({ userId: user[0].user_id, emailId: user[0].email_id }),
+        { userId: user[0].user_id, emailId: user[0].email_id },
         "secret",
         {
           expiresIn: "24h",
