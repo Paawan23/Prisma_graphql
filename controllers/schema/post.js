@@ -39,6 +39,20 @@ const typeDefs = gql`
     deleted_by: Int
   }
 
+  type User {
+    user_id: Int
+    first_name: String
+    last_name: String
+    email_id: String
+    status: Int
+    created_at: DATETIME
+    created_by: Int
+    updated_at: DATETIME
+    updated_by: Int
+    deleted_at: DATETIME
+    deleted_by: Int
+  }
+
   type ResponseMutation {
     status: Boolean
     code: Int
@@ -52,6 +66,19 @@ const typeDefs = gql`
     data: [Post]
   }
 
+  type RepsonseGetAllUsers {
+    status: Boolean
+    code: Int
+    message: String
+    data: [User]
+  }
+  type RepsonseGetAllUsersByUserId {
+    status: Boolean
+    code: Int
+    message: String
+    data: User
+  }
+
   type RepsonseGetPostByPostId {
     status: Boolean
     code: Int
@@ -61,6 +88,8 @@ const typeDefs = gql`
 
   type Query {
     getAllPosts: RepsonseGetAllPosts!
+    getAllUsers: RepsonseGetAllUsers!
+    getAllUsersByUserId(userId: Int): RepsonseGetAllUsersByUserId!
     getPostsByPostId(postId: Int): RepsonseGetPostByPostId!
     getPostsByUser(userId: Int): RepsonseGetAllPosts!
   }

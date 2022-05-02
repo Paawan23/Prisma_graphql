@@ -290,6 +290,50 @@ const resolvers = {
         return { status: false, code: 401, message: error.message };
       }
     },
+    getAllUsers: async () => {
+      try {
+        const data = await prisma.tbl_user.findMany({
+          where: {
+            status: 1,
+          },
+        });
+
+        console.log("data :>> ", data);
+        if (data.length === 0) {
+          return { status: false, code: 202, message: "No data foud" };
+        }
+        return { status: true, code: 201, message: "OK", data: data };
+      } catch (error) {
+        return { status: false, code: 401, message: error.message };
+      }
+    },
+    getAllUsersByUserId: async (_, args) => {
+      try {
+        const { userId } = args;
+
+        if (userId <= 0) {
+          return {
+            status: false,
+            code: 202,
+            message: "Please provide valid user id",
+          };
+        }
+
+        const data = await prisma.tbl_user.findMany({
+          where: {
+            status: 1,
+            user_id: userId,
+          },
+        });
+
+        if (data.length === 0) {
+          return { status: false, code: 202, message: "No data foud" };
+        }
+        return { status: true, code: 201, message: "OK", data: data[0] };
+      } catch (error) {
+        return { status: false, code: 401, message: error.message };
+      }
+    },
   },
 };
 

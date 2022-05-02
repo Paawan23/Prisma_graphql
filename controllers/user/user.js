@@ -477,6 +477,7 @@ const changePassword = async (req, res) => {
       .json({ status: false, code: 401, message: error.message });
   }
 };
+
 module.exports = {
   createUser,
   updateUser,
