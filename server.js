@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(passport.initialize());
 // app.use(passport.session());
 const corsOptions = {
-  origin: "http://localhost:3001",
+  origin: "http://localhost:3000",
   credentials: true,
 };
 
@@ -50,7 +50,7 @@ async function startApolloServer() {
   server.applyMiddleware({
     app,
     path: "/graphql",
-    corsOptions,
+    cors: corsOptions,
   });
 }
 startApolloServer();
