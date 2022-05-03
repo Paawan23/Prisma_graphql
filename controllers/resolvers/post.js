@@ -1,34 +1,15 @@
 const { PrismaClient } = require("@prisma/client");
+const { createWriteStream } = require("fs");
 const prisma = new PrismaClient();
 const fs = require("fs");
-
-// const storeFS = ({ stream, filename }) => {
-//   const uploadDir = "../../uploads";
-//   const path = `${uploadDir}/${filename}`;
-//   return new Promise((resolve, reject) =>
-//     stream
-//       .on("error", (error) => {
-//         if (stream.truncated)
-//           // delete the truncated file
-//           fs.unlinkSync(path);
-//         reject(error);
-//       })
-//       .pipe(fs.createWriteStream(path))
-//       .on("error", (error) => reject(error))
-//       .on("finish", () => resolve({ path }))
-//   );
-// };
-// const { filename, mimetype, createReadStream } = await args.file;
-// const stream = createReadStream();
-// const pathObj = await storeFS({ stream, filename });
-// const fileLocation = pathObj.path;
-// console.log("fileLocation :>> ", fileLocation);
-
+const { GraphQLUpload } = require("graphql-upload");
+const path = require("path");
+const { parse } = require("path");
 const resolvers = {
   Mutation: {
     createPost: async (_, args, req) => {
       try {
-        const { title, description, image } = args.data;
+        let { filename, createReadStream } = await args.file;
         const createdBy = req.userInformation.userId;
         const userId = req.userInformation.userId;
 
@@ -47,8 +28,7 @@ const resolvers = {
         }
         const postCheck = await prisma.tbl_post.count({
           where: {
-            user_id: userId,
-            title: title,
+            title: args.title,
             status: 1,
           },
         });
@@ -60,12 +40,19 @@ const resolvers = {
             message: `post already exists!`,
           };
         }
+
+        let stream = createReadStream();
+        let { name, ext } = parse(filename);
+        let serverFile = path.join(__dirname, `../../uploads/${name}${ext}`);
+        let writeStream = await createWriteStream(serverFile);
+        await stream.pipe(writeStream);
+
         await prisma.tbl_post.create({
           data: {
             user_id: userId,
-            title: title,
-            description: description,
-            image: image,
+            title: args.title,
+            description: args.title,
+            image: filename,
             created_by: createdBy,
             updated_by: null,
             updated_at: null,
@@ -82,73 +69,73 @@ const resolvers = {
         return { status: false, code: 401, message: error.message };
       }
     },
-    updatePost: async (_, args, req) => {
-      try {
-        const { postId, title, description, image } = args.data;
-        const updatedBy = req.userInformation.userId;
-        const postCheck = await prisma.tbl_post.count({
-          where: {
-            post_id: postId,
-          },
-        });
-        if (postCheck === 0) {
-          return {
-            status: false,
-            code: 202,
-            message: `Post not found!`,
-          };
-        }
-        const postData = await prisma.tbl_post.findMany({
-          where: {
-            post_id: postId,
-          },
-        });
-        if (postData[0].status !== 1) {
-          return {
-            status: false,
-            code: 202,
-            message: `Post is deleted!`,
-          };
-        }
-        const titleCheck = await prisma.tbl_post.findFirst({
-          where: {
-            title: title,
-          },
-        });
-        console.log("titleCheck :>> ", titleCheck);
+    // updatePost: async (_, args, req) => {
+    //   try {
+    //     const { postId, title, description, image } = args.data;
+    //     const updatedBy = req.userInformation.userId;
+    //     const postCheck = await prisma.tbl_post.count({
+    //       where: {
+    //         post_id: postId,
+    //       },
+    //     });
+    //     if (postCheck === 0) {
+    //       return {
+    //         status: false,
+    //         code: 202,
+    //         message: `Post not found!`,
+    //       };
+    //     }
+    //     const postData = await prisma.tbl_post.findMany({
+    //       where: {
+    //         post_id: postId,
+    //       },
+    //     });
+    //     if (postData[0].status !== 1) {
+    //       return {
+    //         status: false,
+    //         code: 202,
+    //         message: `Post is deleted!`,
+    //       };
+    //     }
+    //     const titleCheck = await prisma.tbl_post.findFirst({
+    //       where: {
+    //         title: title,
+    //       },
+    //     });
+    //     console.log("titleCheck :>> ", titleCheck);
 
-        // if title alredy exists and post id doesn't match with title in the database then it can't be updated
-        //same title can be updated on it's own post id
-        if (titleCheck && titleCheck.post_id !== postId) {
-          return {
-            status: true,
-            code: 201,
-            message: `Post already exists on different postId! Please provide correct postId`,
-          };
-        }
-        await prisma.tbl_post.update({
-          where: {
-            post_id: postId,
-          },
-          data: {
-            title: title,
-            description: description,
-            image: image,
-            updated_by: updatedBy,
-            deleted_at: null,
-            deleted_by: null,
-            updated_at: new Date(),
-          },
-        });
-        return {
-          status: true,
-          code: 201,
-          message: `Post has been updated successfully!`,
-        };
-      } catch (error) {
-        return { status: false, code: 401, message: error.message };
-      }
-    },
+    //     // if title alredy exists and post id doesn't match with title in the database then it can't be updated
+    //     //same title can be updated on it's own post id
+    //     if (titleCheck && titleCheck.post_id !== postId) {
+    //       return {
+    //         status: true,
+    //         code: 201,
+    //         message: `Post already exists on different postId! Please provide correct postId`,
+    //       };
+    //     }
+    //     await prisma.tbl_post.update({
+    //       where: {
+    //         post_id: postId,
+    //       },
+    //       data: {
+    //         title: title,
+    //         description: description,
+    //         image: image,
+    //         updated_by: updatedBy,
+    //         deleted_at: null,
+    //         deleted_by: null,
+    //         updated_at: new Date(),
+    //       },
+    //     });
+    //     return {
+    //       status: true,
+    //       code: 201,
+    //       message: `Post has been updated successfully!`,
+    //     };
+    //   } catch (error) {
+    //     return { status: false, code: 401, message: error.message };
+    //   }
+    // },
     deletePost: async (_, args, req) => {
       try {
         const { postId } = args;
@@ -198,7 +185,95 @@ const resolvers = {
         return { status: false, code: 401, message: error.message };
       }
     },
+    updatePost: async (_, args, req) => {
+      try {
+        const updatedBy = req.userInformation.userId;
+        let { filename, createReadStream } = await args.file;
+
+        const postCheck = await prisma.tbl_post.count({
+          where: {
+            post_id: args.postId,
+          },
+        });
+
+        if (postCheck === 0) {
+          return {
+            status: false,
+            code: 202,
+            message: `Post not found!`,
+          };
+        }
+        const postData = await prisma.tbl_post.findMany({
+          where: {
+            post_id: args.postId,
+          },
+        });
+        if (postData[0].status !== 1) {
+          return {
+            status: false,
+            code: 202,
+            message: `Post is deleted!`,
+          };
+        }
+
+        const titleCheck = await prisma.tbl_post.findFirst({
+          where: {
+            title: args.title,
+          },
+        });
+
+        // if title alredy exists and post id doesn't match with title in the database then it can't be updated
+        //same title can be updated on it's own post id
+        if (titleCheck && titleCheck.post_id !== args.postId) {
+          return {
+            status: true,
+            code: 201,
+            message: `Post already exists on different postId! Please provide correct postId`,
+          };
+        }
+        const getImg = await prisma.tbl_post.findMany({
+          where: {
+            post_id: args.postId,
+          },
+        });
+        fs.unlink(
+          path.join(__dirname, `../../uploads/${getImg[0].image}`),
+          (err) => {
+            if (err) return err.message;
+          }
+        );
+
+        let stream = createReadStream();
+        let { name, ext } = parse(filename);
+        let serverFile = path.join(__dirname, `../../uploads/${name}${ext}`);
+        let writeStream = await createWriteStream(serverFile);
+        await stream.pipe(writeStream);
+
+        await prisma.tbl_post.update({
+          where: {
+            post_id: args.postId,
+          },
+          data: {
+            title: args.title,
+            description: args.description,
+            image: filename,
+            updated_by: updatedBy,
+            deleted_at: null,
+            deleted_by: null,
+            updated_at: new Date(),
+          },
+        });
+        return {
+          status: true,
+          code: 201,
+          message: `Post has been updated successfully!`,
+        };
+      } catch (error) {
+        return error.message;
+      }
+    },
   },
+  Upload: GraphQLUpload,
 
   Query: {
     getAllPosts: async () => {

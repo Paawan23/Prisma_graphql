@@ -8,6 +8,8 @@ const cors = require("cors");
 
 const typeDefs = require("./controllers/schema/post");
 const resolvers = require("./controllers/resolvers/post");
+const { graphqlUploadExpress } = require("graphql-upload");
+// const bodyParser = require("body-parser");
 // const cookieSession = require("cookie-session");
 // const passport = require("passport");
 
@@ -35,6 +37,8 @@ let port = process.env.PORT || 3000;
 
 app.use("/", Route);
 app.use(verifyToken);
+app.use(graphqlUploadExpress());
+// app.use(bodyParser.json());
 
 async function startApolloServer() {
   const server = new ApolloServer({
