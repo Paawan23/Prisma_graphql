@@ -95,7 +95,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createPost(v: InputCreatePost): ResponseMutation!
+    createPost(data: InputCreatePost): ResponseMutation!
     updatePost(data: InputUpdatePost): ResponseMutation!
     deletePost(postId: Int): ResponseMutation!
   }
