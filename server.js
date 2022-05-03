@@ -8,25 +8,11 @@ const cors = require("cors");
 
 const typeDefs = require("./controllers/schema/post");
 const resolvers = require("./controllers/resolvers/post");
+
 const { graphqlUploadExpress } = require("graphql-upload");
-// const bodyParser = require("body-parser");
-// const cookieSession = require("cookie-session");
-// const passport = require("passport");
-
-// require("./passport");
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(
-//   cookieSession({
-//     name: "google-auth-session",
-//     keys: ["key1", "key2"],
-//   })
-// );
-
-// app.use(passport.initialize());
-// app.use(passport.session());
 const corsOptions = {
   origin: "http://localhost:3000",
   credentials: true,
@@ -38,7 +24,6 @@ let port = process.env.PORT || 3000;
 app.use("/", Route);
 app.use(verifyToken);
 app.use(graphqlUploadExpress());
-// app.use(bodyParser.json());
 
 async function startApolloServer() {
   const server = new ApolloServer({

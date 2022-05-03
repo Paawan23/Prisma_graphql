@@ -4,6 +4,7 @@ const verifyToken = async (req, res, next) => {
   try {
     if (req.headers.cookie) {
       const token = req.headers.cookie.split("=")[1];
+
       if (token) {
         const decode = jwt.verify(token, "secret");
         req.userInformation = {};

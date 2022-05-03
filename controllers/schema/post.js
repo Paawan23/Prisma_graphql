@@ -100,7 +100,6 @@ const typeDefs = gql`
   type Mutation {
     createPost(
       file: Upload!
-      postId: Int
       title: String
       description: String
     ): ResponseMutation!

@@ -1,6 +1,5 @@
 const express = require("express");
 const { verifyToken } = require("../auth");
-// const passport = require("passport");
 
 const {
   createUser,
@@ -14,29 +13,6 @@ const {
   enableDisableUser,
 } = require("../controllers/user/user");
 const router = express.Router();
-
-// router.get(
-//   `/userAuth/google`,
-//   passport.authenticate("google", {
-//     scope: ["email", "profile"],
-//   })
-// );
-// router.get(
-//   "/google/callback",
-//   passport.authenticate("google", {
-//     failureRedirect: "/failed",
-//   }),
-//   function (req, res) {
-//     res.redirect("/success");
-//   }
-// );
-
-// router.get("/failed", (req, res) => {
-//   res.send("Failed");
-// });
-// router.get("/success", (req, res) => {
-//   res.send(`Welcome user`);
-// });
 
 router.post(`/userAuth/login`, loginUser);
 router.get(`/userAuth/logout`, logout);
