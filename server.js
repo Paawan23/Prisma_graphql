@@ -5,6 +5,7 @@ const Route = require("./routes/route");
 const { ApolloServer } = require("apollo-server-express");
 const { verifyToken } = require("./auth");
 const cors = require("cors");
+const path = require("path");
 
 const typeDefs = require("./controllers/schema/post");
 const resolvers = require("./controllers/resolvers/post");
