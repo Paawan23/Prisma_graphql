@@ -51,7 +51,7 @@ const resolvers = {
           data: {
             user_id: userId,
             title: args.title,
-            description: args.title,
+            description: args.description,
             image: filename,
             created_by: createdBy,
             updated_by: null,
@@ -69,73 +69,7 @@ const resolvers = {
         return { status: false, code: 401, message: error.message };
       }
     },
-    // updatePost: async (_, args, req) => {
-    //   try {
-    //     const { postId, title, description, image } = args.data;
-    //     const updatedBy = req.userInformation.userId;
-    //     const postCheck = await prisma.tbl_post.count({
-    //       where: {
-    //         post_id: postId,
-    //       },
-    //     });
-    //     if (postCheck === 0) {
-    //       return {
-    //         status: false,
-    //         code: 202,
-    //         message: `Post not found!`,
-    //       };
-    //     }
-    //     const postData = await prisma.tbl_post.findMany({
-    //       where: {
-    //         post_id: postId,
-    //       },
-    //     });
-    //     if (postData[0].status !== 1) {
-    //       return {
-    //         status: false,
-    //         code: 202,
-    //         message: `Post is deleted!`,
-    //       };
-    //     }
-    //     const titleCheck = await prisma.tbl_post.findFirst({
-    //       where: {
-    //         title: title,
-    //       },
-    //     });
-    //     console.log("titleCheck :>> ", titleCheck);
 
-    //     // if title alredy exists and post id doesn't match with title in the database then it can't be updated
-    //     //same title can be updated on it's own post id
-    //     if (titleCheck && titleCheck.post_id !== postId) {
-    //       return {
-    //         status: true,
-    //         code: 201,
-    //         message: `Post already exists on different postId! Please provide correct postId`,
-    //       };
-    //     }
-    //     await prisma.tbl_post.update({
-    //       where: {
-    //         post_id: postId,
-    //       },
-    //       data: {
-    //         title: title,
-    //         description: description,
-    //         image: image,
-    //         updated_by: updatedBy,
-    //         deleted_at: null,
-    //         deleted_by: null,
-    //         updated_at: new Date(),
-    //       },
-    //     });
-    //     return {
-    //       status: true,
-    //       code: 201,
-    //       message: `Post has been updated successfully!`,
-    //     };
-    //   } catch (error) {
-    //     return { status: false, code: 401, message: error.message };
-    //   }
-    // },
     deletePost: async (_, args, req) => {
       try {
         const { postId } = args;

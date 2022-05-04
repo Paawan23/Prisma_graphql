@@ -12,6 +12,7 @@ const resolvers = require("./controllers/resolvers/post");
 const { graphqlUploadExpress } = require("graphql-upload");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname + "/uploads/")));
 
 const corsOptions = {
   origin: "http://localhost:3000",
